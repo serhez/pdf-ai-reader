@@ -27,8 +27,23 @@
       <section id="result-section" hidden>
         <h2 id="result-title">Result</h2>
         <pre id="result"></pre>
+        <p><a id="host-install-link" class="button-link" target="_blank" rel="noreferrer" hidden>Install the companion</a></p>
       </section>
     </main>
+
+    <dialog id="ai-consent-dialog" aria-labelledby="ai-consent-title">
+      <form method="dialog">
+        <p class="eyebrow">One-time disclosure</p>
+        <h1 id="ai-consent-title">Before using <span id="ai-provider">AI</span></h1>
+        <p>Your selected text and document location will be passed to the PDF AI Reader companion on this computer. The chosen CLI may read relevant files in the detected project and transmit the selection, prompt, and file contents to its AI provider under your account.</p>
+        <p>PDF AI Reader has no developer-operated server and does not receive the request or response.</p>
+        <p><a id="consent-privacy-link" href="privacy.html">Privacy details</a></p>
+        <div class="button-row dialog-actions">
+          <button class="secondary" type="submit" value="cancel">Not now</button>
+          <button type="submit" value="accept">Continue</button>
+        </div>
+      </form>
+    </dialog>
     <script type="module" src="sidepanel.js"></script>
   </body>
 </html>

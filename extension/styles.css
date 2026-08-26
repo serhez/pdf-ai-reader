@@ -42,6 +42,22 @@ body {
   padding: 20px;
 }
 
+.card {
+  margin: 16px 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.card > :first-child {
+  margin-top: 0;
+}
+
+.card > :last-child {
+  margin-bottom: 0;
+}
+
 .panel-header {
   display: flex;
   align-items: flex-start;
@@ -136,6 +152,52 @@ pre {
   color: var(--muted);
 }
 
+.button-link {
+  display: inline-block;
+  padding: 8px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+}
+
+.text-link {
+  align-self: center;
+}
+
+.page-footer {
+  margin-top: 24px;
+  color: var(--muted);
+}
+
+.prose p,
+.card p {
+  line-height: 1.55;
+}
+
+dialog {
+  width: min(440px, calc(100vw - 32px));
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
+}
+
+dialog p {
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
 form {
   display: grid;
   gap: 16px;
@@ -176,6 +238,11 @@ button.secondary {
   border-color: var(--border);
   background: var(--surface);
   color: var(--text);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .form-status {

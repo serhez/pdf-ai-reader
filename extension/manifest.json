@@ -1,10 +1,17 @@
 {
   "manifest_version": 3,
   "name": "PDF AI Reader",
+  "short_name": "PDF AI Reader",
   "version": "0.3.0",
   "description": "Highlight selected local-document text in Markdown or explain it with project context.",
   "minimum_chrome_version": "116",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwudFvF1+elhNELksZ61OX8310IH/gBDMlm0CSuYdmZR3SeqsTmPvEHdeddwvyESSyKlqaQC+z5dmdwKEwYMx0+z32Uf/VWxK4w1uYjEucPzxLOwL8X+QHIp6geGXympBltc5ui4mB2S8SzPVV7h2iKvlryjfzSNi/OmdqZOVt86S2Jfi+VLY1vI5yYJW+8SX9hMgWKfKA+qLRzRGe5SiVKvsEAyoVvhshbPF5V/AELKAcd+UW4RsJZL1+vBlnq4f4TXWv4Opw5C1+ZFRmFb2VyKQyCtGxqda9VsdrozurxnX4F1AxBkjWWCe88ngr/GSZ2X9tGxJJ+xHu0qMEzZ++wIDAQAB",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
   "permissions": [
     "contextMenus",
     "nativeMessaging",
@@ -21,13 +28,18 @@
     "type": "module"
   },
   "action": {
-    "default_title": "PDF AI Reader"
+    "default_title": "PDF AI Reader",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
   },
   "side_panel": {
     "default_path": "sidepanel.html"
   },
   "options_ui": {
     "page": "options.html",
-    "open_in_tab": false
-  }
+    "open_in_tab": true
+  },
+  "homepage_url": "https://github.com/serhez/pdf-ai-reader"
 }

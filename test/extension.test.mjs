@@ -1,22 +1,31 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
-import { DEFAULT_MARKERS, NATIVE_HOST } from "../extension/config.js";
+import {
+  AI_CONSENT_VERSION,
+  DEFAULT_MARKERS,
+  NATIVE_HOST,
+  PROJECT_URLS,
+} from "../extension/config.js";
 import { EXTENSION_ID, NATIVE_HOST_NAME } from "../native-host/constants.mjs";
 import {
   buildLauncher,
   capturedPath,
+  install,
   installationPaths,
   shellQuote,
+  uninstall,
 } from "../native-host/install.mjs";
 
 test("extension manifest has the required permissions, narrow hosts, and stable ID", () => {
   const manifest = JSON.parse(fs.readFileSync("extension/manifest.json", "utf8"));
   assert.equal(manifest.name, "PDF AI Reader");
   assert.equal(manifest.action.default_title, "PDF AI Reader");
+  assert.deepEqual(Object.keys(manifest.icons), ["16", "32", "48", "128"]);
   for (const permission of ["contextMenus", "nativeMessaging", "scripting", "sidePanel", "storage"]) {
     assert.ok(manifest.permissions.includes(permission));
   }
@@ -37,6 +46,8 @@ test("extension manifest has the required permissions, narrow hosts, and stable 
     .join("");
   assert.equal(calculatedId, EXTENSION_ID);
   assert.equal(NATIVE_HOST, NATIVE_HOST_NAME);
+  assert.equal(AI_CONSENT_VERSION, 1);
+  assert.match(PROJECT_URLS.privacy, /^https:\/\//u);
   assert.deepEqual(DEFAULT_MARKERS, { open: "==", close: "==" });
 });
 
@@ -69,6 +80,15 @@ test("Peek patches expose the source path and render highlight syntax", () => {
 
 test("installer paths and shell quoting are deterministic", () => {
   const paths = installationPaths("/tmp/test home");
+  assert.equal(
+    paths.installedHostDirectory,
+    "/tmp/test home/Library/Application Support/Project PDF Reader/native-host",
+  );
+  assert.equal(
+    paths.hostScript,
+    "/tmp/test home/Library/Application Support/Project PDF Reader/native-host/host.mjs",
+  );
+  assert.equal(path.basename(paths.sourceHostDirectory), "native-host");
   assert.deepEqual(paths.manifests, [
     {
       browser: "Google Chrome",
@@ -94,4 +114,31 @@ test("installer paths and shell quoting are deterministic", () => {
     }),
     "#!/bin/sh\nexport PATH='/opt/homebrew/bin:/usr/bin'\nexec '/opt/homebrew/bin/node' '/tmp/repo/native-host/host.mjs' \"$@\"\n",
   );
+});
+
+test("installer copies a self-contained native-host runtime", () => {
+  const homeDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "pdf-ai-reader-home-"));
+  try {
+    install(homeDirectory);
+    const paths = installationPaths(homeDirectory);
+    for (const file of ["agents.mjs", "constants.mjs", "core.mjs", "handler.mjs", "host.mjs", "protocol.mjs"]) {
+      assert.ok(fs.existsSync(path.join(paths.installedHostDirectory, file)), file);
+    }
+    const launcher = fs.readFileSync(paths.launcher, "utf8");
+    assert.match(launcher, new RegExp(paths.hostScript.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
+    assert.doesNotMatch(launcher, new RegExp(path.join(process.cwd(), "native-host", "host.mjs"), "u"));
+    for (const target of paths.manifests) {
+      const manifest = JSON.parse(fs.readFileSync(target.path, "utf8"));
+      assert.equal(manifest.path, paths.launcher);
+      assert.deepEqual(manifest.allowed_origins, [`chrome-extension://${EXTENSION_ID}/`]);
+    }
+
+    uninstall(homeDirectory);
+    assert.equal(fs.existsSync(paths.supportDirectory), false);
+    for (const target of paths.manifests) {
+      assert.equal(fs.existsSync(target.path), false);
+    }
+  } finally {
+    fs.rmSync(homeDirectory, { recursive: true, force: true });
+  }
 });

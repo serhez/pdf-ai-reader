@@ -1,7 +1,16 @@
-import { DEFAULT_MARKERS, NATIVE_HOST, STORAGE_KEYS } from "./config.js";
+import {
+  AI_CONSENT_VERSION,
+  DEFAULT_MARKERS,
+  NATIVE_HOST,
+  PROJECT_URLS,
+  STORAGE_KEYS,
+} from "./config.js";
 
 const elements = {
   actionTitle: document.querySelector("#action-title"),
+  aiConsentDialog: document.querySelector("#ai-consent-dialog"),
+  aiProvider: document.querySelector("#ai-provider"),
+  hostInstallLink: document.querySelector("#host-install-link"),
   location: document.querySelector("#location"),
   openOptions: document.querySelector("#open-options"),
   result: document.querySelector("#result"),
@@ -11,6 +20,8 @@ const elements = {
   selectionSection: document.querySelector("#selection-section"),
   status: document.querySelector("#status"),
 };
+
+elements.hostInstallLink.href = PROJECT_URLS.companion;
 
 let activeRequestId = null;
 let queuedRequest = null;
@@ -65,9 +76,14 @@ async function processRequest(request) {
   }
 
   activeRequestId = request.id;
-  renderRunning(request);
 
   try {
+    if (request.action === "explain") {
+      renderAwaitingConsent(request);
+      await ensureAiDataConsent(request.provider);
+    }
+
+    renderRunning(request);
     const outbound = { ...request };
     if (request.action === "highlight") {
       outbound.markers = await loadMarkers();
@@ -93,7 +109,7 @@ async function processRequest(request) {
       id: request.id,
       ok: false,
       error: {
-        code: "NATIVE_HOST_UNAVAILABLE",
+        code: error instanceof UiError ? error.code : "NATIVE_HOST_UNAVAILABLE",
         message: formatRuntimeError(error),
       },
     };
@@ -117,6 +133,42 @@ async function processRequest(request) {
   }
 }
 
+async function ensureAiDataConsent(provider) {
+  const stored = await chrome.storage.local.get(STORAGE_KEYS.aiDataConsent);
+  const existingConsent = stored[STORAGE_KEYS.aiDataConsent];
+  if (
+    existingConsent?.version === AI_CONSENT_VERSION
+    && existingConsent.providers?.[provider]
+  ) {
+    return;
+  }
+
+  const providerLabel = provider === "claude" ? "Claude (Anthropic)" : "Codex (OpenAI)";
+  elements.aiProvider.textContent = providerLabel;
+  elements.aiConsentDialog.returnValue = "";
+  elements.aiConsentDialog.showModal();
+
+  const accepted = await new Promise((resolve) => {
+    elements.aiConsentDialog.addEventListener("close", () => {
+      resolve(elements.aiConsentDialog.returnValue === "accept");
+    }, { once: true });
+  });
+
+  if (!accepted) {
+    throw new UiError("AI_DATA_CONSENT_REQUIRED", "AI explanation was not sent. You can continue using local highlights without AI data sharing.");
+  }
+
+  await chrome.storage.local.set({
+    [STORAGE_KEYS.aiDataConsent]: {
+      version: AI_CONSENT_VERSION,
+      providers: {
+        ...(existingConsent?.version === AI_CONSENT_VERSION ? existingConsent.providers : {}),
+        [provider]: new Date().toISOString(),
+      },
+    },
+  });
+}
+
 async function loadMarkers() {
   const stored = await chrome.storage.local.get(STORAGE_KEYS.markers);
   return stored[STORAGE_KEYS.markers] ?? DEFAULT_MARKERS;
@@ -128,11 +180,22 @@ function renderRunning(request) {
   elements.status.dataset.kind = "running";
   elements.resultSection.hidden = true;
   elements.result.textContent = "";
+  elements.hostInstallLink.hidden = true;
+}
+
+function renderAwaitingConsent(request) {
+  renderRequest(request);
+  elements.status.textContent = "Waiting for confirmation";
+  elements.status.dataset.kind = "running";
+  elements.resultSection.hidden = true;
+  elements.result.textContent = "";
+  elements.hostInstallLink.hidden = true;
 }
 
 function renderCompleted(request, response) {
   renderRequest(request);
   elements.resultSection.hidden = false;
+  elements.hostInstallLink.hidden = true;
 
   if (response.ok) {
     elements.status.textContent = "Done";
@@ -149,6 +212,7 @@ function renderCompleted(request, response) {
   elements.status.dataset.kind = "error";
   elements.resultTitle.textContent = "Could not complete the action";
   elements.result.textContent = response.error?.message ?? "Unknown error.";
+  elements.hostInstallLink.hidden = response.error?.code !== "NATIVE_HOST_UNAVAILABLE";
 }
 
 function renderRequest(request) {
@@ -185,7 +249,14 @@ function displayLocation(value) {
 function formatRuntimeError(error) {
   const message = error instanceof Error ? error.message : String(error);
   if (message.toLowerCase().includes("native messaging host not found")) {
-    return "Native host not installed. Run `npm run install-host`, then reload the extension.";
+    return "The PDF AI Reader companion is not installed. Install it, then reload the extension.";
   }
   return message;
+}
+
+class UiError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+  }
 }

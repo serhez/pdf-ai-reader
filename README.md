@@ -6,7 +6,7 @@ A small personal Chromium extension for local PDFs and localhost [Peek](https://
 - explain the selection in project context with Codex; or
 - explain the selection in project context with Claude.
 
-The extension talks to a local Node process through Chrome Native Messaging. It does not store API keys or send model requests itself.
+The extension talks to a separately installed local Node process through Chrome Native Messaging. It does not store API keys or operate an intermediary server. AI explanations use the Codex or Claude CLI already authenticated on your computer.
 
 ## Requirements
 
@@ -34,12 +34,12 @@ A PR adding another Chrome-based browser must include:
 
 Browser-support PRs must not broaden the extension beyond `file://` and the exact `http://localhost/*` permission without a separate security discussion.
 
-## Install
+## Install from source
 
 1. Open `chrome://extensions` in Chrome or `arc://extensions` in Arc, enable **Developer mode**, and choose **Load unpacked**.
 2. Select the `extension` directory in this repository.
 3. Open the extension's details and enable **Allow access to file URLs** for PDF support. Localhost access is declared separately and does not grant access to internet sites.
-4. From this repository, register the native host:
+4. From this repository, install the native companion:
 
    ```sh
    npm run install-host
@@ -47,7 +47,9 @@ Browser-support PRs must not broaden the extension beyond `file://` and the exac
 
 5. Reload the extension from the browser's extensions page.
 
-The host installer registers both Google Chrome and Arc. The unpacked extension has the stable ID `ghljkecfobmdbdhgijffhaehplamigle`. Moving this repository requires running `npm run install-host` again because the native-host launcher records its absolute path.
+The companion installer copies its runtime into Application Support and registers both Google Chrome and Arc. You can move or delete the source checkout afterward. The unpacked extension currently has the stable ID `ghljkecfobmdbdhgijffhaehplamigle`; this ID must be reconciled with the Chrome Web Store draft before publication.
+
+Release users can instead download the matching macOS companion archive from the repository's [releases page](https://github.com/serhez/pdf-ai-reader/releases/latest), extract it, and run the same `npm run install-host` command inside that archive.
 
 ## Use
 
@@ -69,7 +71,7 @@ Save a Peek buffer before highlighting from its preview. Peek can render unsaved
 
 To change the opening and closing highlight markers, open the extension's settings from the browser or use the gear button in the result UI. Both markers default to `==`.
 
-Explanations are stateless. Codex runs ephemerally in a read-only sandbox; Claude is limited to its `Read`, `Glob`, and `Grep` tools. Both use their installed CLI's current authentication, project instructions, and default model.
+Explanations are stateless. Codex runs ephemerally in a read-only sandbox; Claude is limited to its `Read`, `Glob`, and `Grep` tools. Both use their installed CLI's current authentication, project instructions, and default model. Before the first AI action, the extension discloses that selected text and relevant project-file contents read by the CLI may be sent to OpenAI or Anthropic and asks for consent. See the [privacy policy](PRIVACY.md).
 
 ## Exact Peek source integration
 
@@ -96,11 +98,24 @@ Run the dependency-free Node test suite:
 npm test
 ```
 
+Validate the Chrome Web Store metadata and build the browser and macOS-companion archives:
+
+```sh
+npm run validate:store
+npm run package:store
+```
+
+Build outputs are written to `dist/`. The Chrome archive contains `manifest.json` at its root; the companion archive can be published as the matching GitHub release asset.
+
 The native host writes protocol messages only to stdout and diagnostic errors to stderr. To remove its generated launcher and browser registrations:
 
 ```sh
 npm run uninstall-host
 ```
+
+## Chrome Web Store publishing
+
+The repository contains the prepared [listing copy](store/listing.md), [reviewer instructions](store/reviewer-instructions.md), and [publisher checklist](store/publisher-checklist.md). Run `npm run package:chrome-draft` for the deliberately disposable `0.0.0.1` dashboard upload, retrieve its Item ID and public key, update the real manifest and native-host allowlist, then build version `0.3.0` before submission.
 
 ## MVP boundaries
 

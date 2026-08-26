@@ -6,6 +6,12 @@
   "description": "Chrome selection actions for local PDFs and localhost Markdown previews.",
   "scripts": {
     "test": "node --test",
+    "validate:store": "node scripts/validate-store.mjs",
+    "package:chrome-draft": "node scripts/package-store.mjs --extension --draft",
+    "package:chrome": "node scripts/package-store.mjs --extension",
+    "package:host": "node scripts/package-store.mjs --host",
+    "package:store": "node scripts/package-store.mjs",
+    "fixture:review": "node scripts/create-reviewer-pdf.mjs",
     "install-host": "node native-host/install.mjs",
     "uninstall-host": "node native-host/install.mjs --uninstall"
   },

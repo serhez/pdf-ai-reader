@@ -37,8 +37,11 @@ async function configureExtension() {
   configureSidePanel();
 }
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   configureExtension().catch(console.error);
+  if (details.reason === "install") {
+    chrome.runtime.openOptionsPage().catch(console.error);
+  }
 });
 
 chrome.runtime.onStartup.addListener(() => {

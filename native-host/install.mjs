@@ -9,6 +9,15 @@ import {
   NATIVE_HOST_ORIGIN,
 } from "./constants.mjs";
 
+const RUNTIME_FILES = Object.freeze([
+  "agents.mjs",
+  "constants.mjs",
+  "core.mjs",
+  "handler.mjs",
+  "host.mjs",
+  "protocol.mjs",
+]);
+
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
@@ -22,9 +31,16 @@ if (isMain) {
   }
 }
 
-function install() {
-  const paths = installationPaths();
+export function install(homeDirectory = os.homedir()) {
+  const paths = installationPaths(homeDirectory);
   fs.mkdirSync(paths.supportDirectory, { recursive: true, mode: 0o700 });
+  fs.mkdirSync(paths.installedHostDirectory, { recursive: true, mode: 0o700 });
+
+  for (const file of RUNTIME_FILES) {
+    const destination = path.join(paths.installedHostDirectory, file);
+    fs.copyFileSync(path.join(paths.sourceHostDirectory, file), destination);
+    fs.chmodSync(destination, 0o600);
+  }
 
   const launcher = buildLauncher({
     nodePath: process.execPath,
@@ -54,12 +70,13 @@ function install() {
   console.log("Reload PDF AI Reader in chrome://extensions or arc://extensions if it is already open.");
 }
 
-function uninstall() {
-  const paths = installationPaths();
+export function uninstall(homeDirectory = os.homedir()) {
+  const paths = installationPaths(homeDirectory);
   for (const target of paths.manifests) {
     removeIfPresent(target.path);
   }
   removeIfPresent(paths.launcher);
+  fs.rmSync(paths.installedHostDirectory, { recursive: true, force: true });
 
   try {
     fs.rmdirSync(paths.supportDirectory);
@@ -73,8 +90,9 @@ function uninstall() {
 }
 
 export function installationPaths(homeDirectory = os.homedir()) {
-  const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+  const sourceHostDirectory = path.dirname(fileURLToPath(import.meta.url));
   const supportDirectory = path.join(homeDirectory, "Library", "Application Support", "Project PDF Reader");
+  const installedHostDirectory = path.join(supportDirectory, "native-host");
   const manifests = [
     {
       browser: "Google Chrome",
@@ -104,7 +122,9 @@ export function installationPaths(homeDirectory = os.homedir()) {
   }));
 
   return {
-    hostScript: path.join(scriptDirectory, "host.mjs"),
+    sourceHostDirectory,
+    installedHostDirectory,
+    hostScript: path.join(installedHostDirectory, "host.mjs"),
     supportDirectory,
     launcher: path.join(supportDirectory, "native-host.sh"),
     manifests,
