@@ -1,0 +1,4 @@
+.DS_Store
+.vim/
+coverage/
+node_modules/

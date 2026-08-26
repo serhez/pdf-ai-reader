@@ -1,0 +1,99 @@
+diff --git a/lua/peek/init.lua b/lua/peek/init.lua
+index 60b5d00..61487ff 100644
+--- a/lua/peek/init.lua
++++ b/lua/peek/init.lua
+@@ -20,7 +20,8 @@ local function open(bufnr)
+   app.init(function()
+     augroup = nvim_del_augroup_by_id(augroup)
+   end)
+-  app.base(vim.fn.fnamemodify(vim.uri_to_fname(vim.uri_from_bufnr(bufnr)), ':p:h'))
++  local source_path = vim.fn.fnamemodify(vim.uri_to_fname(vim.uri_from_bufnr(bufnr)), ':p')
++  app.base(vim.fn.fnamemodify(source_path, ':h'), source_path)
+   app.show(get_buf_content(bufnr))
+   app.scroll(line('.'))
+ 
+diff --git a/lua/peek/app.lua b/lua/peek/app.lua
+index dcaa384..877804d 100644
+--- a/lua/peek/app.lua
++++ b/lua/peek/app.lua
+@@ -69,8 +69,8 @@ function module.init(on_exit)
+     chansend(channel, message({ 'scroll', line }))
+   end
+ 
+-  module.base = function(path)
+-    chansend(channel, message({ 'base', path }))
++  module.base = function(path, source_path)
++    chansend(channel, message({ 'base', path, source_path }))
+   end
+ end
+ 
+diff --git a/app/src/main.ts b/app/src/main.ts
+index 61a2847..411be40 100644
+--- a/app/src/main.ts
++++ b/app/src/main.ts
+@@ -50,9 +50,13 @@ async function init(socket: WebSocket) {
+           break;
+         }
+         case 'base': {
++          const base = decoder.decode((await generator.next()).value!);
++          const sourcePath = decoder.decode((await generator.next()).value!);
++
+           socket.send(encoder.encode(JSON.stringify({
+             action,
+-            base: normalize(decoder.decode((await generator.next()).value!) + '/'),
++            base: normalize(base + '/'),
++            sourcePath: normalize(sourcePath),
+           })));
+           break;
+         }
+diff --git a/client/src/script.ts b/client/src/script.ts
+index 0848dd0..4724715 100644
+--- a/client/src/script.ts
++++ b/client/src/script.ts
+@@ -73,6 +73,9 @@ addEventListener('DOMContentLoaded', () => {
+     if (item) {
+       const session = JSON.parse(item);
+       base.href = session.base;
++      if (session.sourcePath) {
++        document.documentElement.dataset.peekSourcePath = session.sourcePath;
++      }
+       onPreview({ html: session.html, lcount: session.lcount });
+       onScroll({ line: session.line });
+     }
+@@ -82,6 +85,7 @@ addEventListener('DOMContentLoaded', () => {
+       'session',
+       JSON.stringify({
+         base: base.href,
++        sourcePath: document.documentElement.dataset.peekSourcePath,
+         html: markdownBody.innerHTML,
+         lcount: source?.lcount,
+         line: scroll?.line,
+@@ -111,6 +115,7 @@ addEventListener('DOMContentLoaded', () => {
+         break;
+       case 'base':
+         base.href = data.base;
++        document.documentElement.dataset.peekSourcePath = data.sourcePath;
+         break;
+       default:
+         break;
+diff --git a/app/src/markdownit.ts b/app/src/markdownit.ts
+index 529330a..4778694 100644
+--- a/app/src/markdownit.ts
++++ b/app/src/markdownit.ts
+@@ -6,5 +6,6 @@ import MarkdownIt from 'https://esm.sh/markdown-it@14.0.0';
+ import { full as MarkdownItEmoji } from 'https://esm.sh/markdown-it-emoji@3.0.0';
+ import { default as MarkdownItFootnote } from 'https://esm.sh/markdown-it-footnote@4.0.0';
++import { default as MarkdownItMark } from 'https://esm.sh/markdown-it-mark@4.0.0';
+ import { default as MarkdownItTaskLists } from 'https://esm.sh/markdown-it-task-lists@2.1.1';
+ import { default as MarkdownItTexmath } from 'https://esm.sh/markdown-it-texmath@1.0.0';
+ import Katex from 'https://esm.sh/katex@0.16.9';
+@@ -26,7 +27,8 @@ const md = new MarkdownIt('default', {
+ 
+     return '';
+   }),
+-}).use(MarkdownItEmoji)
++}).use(MarkdownItMark)
++  .use(MarkdownItEmoji)
+   .use(MarkdownItFootnote)
+   .use(MarkdownItTaskLists, { enabled: false, label: true })
+   .use(MarkdownItTexmath, {

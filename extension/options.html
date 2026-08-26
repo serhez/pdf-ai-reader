@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Project PDF Reader settings</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="options">
+      <p class="eyebrow">Project PDF Reader</p>
+      <h1>Highlight markers</h1>
+      <p class="description">These strings are inserted immediately before and after the matching Markdown text.</p>
+
+      <form id="marker-form">
+        <label>
+          Opening marker
+          <input id="marker-open" name="markerOpen" maxlength="32" required />
+        </label>
+        <label>
+          Closing marker
+          <input id="marker-close" name="markerClose" maxlength="32" required />
+        </label>
+        <div class="button-row">
+          <button type="submit">Save</button>
+          <button id="reset" class="secondary" type="button">Reset to ==</button>
+        </div>
+        <p id="save-status" class="form-status" role="status"></p>
+      </form>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

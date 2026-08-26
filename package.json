@@ -1,0 +1,15 @@
+{
+  "name": "project-pdf-reader",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Chrome selection actions for local PDFs and localhost Markdown previews.",
+  "scripts": {
+    "test": "node --test",
+    "install-host": "node native-host/install.mjs",
+    "uninstall-host": "node native-host/install.mjs --uninstall"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

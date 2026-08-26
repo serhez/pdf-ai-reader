@@ -1,0 +1,20 @@
+diff --git a/app/src/markdownit.ts b/app/src/markdownit.ts
+index 529330a..4778694 100644
+--- a/app/src/markdownit.ts
++++ b/app/src/markdownit.ts
+@@ -6,4 +6,5 @@ import MarkdownIt from 'https://esm.sh/markdown-it@14.0.0';
+ import { full as MarkdownItEmoji } from 'https://esm.sh/markdown-it-emoji@3.0.0';
+ import { default as MarkdownItFootnote } from 'https://esm.sh/markdown-it-footnote@4.0.0';
++import { default as MarkdownItMark } from 'https://esm.sh/markdown-it-mark@4.0.0';
+ import { default as MarkdownItTaskLists } from 'https://esm.sh/markdown-it-task-lists@2.1.1';
+ import { default as MarkdownItTexmath } from 'https://esm.sh/markdown-it-texmath@1.0.0';
+@@ -26,7 +27,8 @@ const md = new MarkdownIt('default', {
+ 
+     return '';
+   }),
+-}).use(MarkdownItEmoji)
++}).use(MarkdownItMark)
++  .use(MarkdownItEmoji)
+   .use(MarkdownItFootnote)
+   .use(MarkdownItTaskLists, { enabled: false, label: true })
+   .use(MarkdownItTexmath, {
