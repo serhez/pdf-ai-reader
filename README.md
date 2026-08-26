@@ -1,4 +1,4 @@
-# Project PDF Reader
+# PDF AI Reader
 
 A small personal Chromium extension for local PDFs and localhost [Peek](https://github.com/toppair/peek.nvim) Markdown previews. Select rendered text and use the context menu to:
 

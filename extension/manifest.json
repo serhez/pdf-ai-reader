@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Project PDF Reader",
+  "name": "PDF AI Reader",
   "version": "0.3.0",
   "description": "Highlight selected local-document text in Markdown or explain it with project context.",
   "minimum_chrome_version": "116",
@@ -21,7 +21,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "Project PDF Reader"
+    "default_title": "PDF AI Reader"
   },
   "side_panel": {
     "default_path": "sidepanel.html"

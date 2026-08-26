@@ -36,7 +36,7 @@ function install() {
 
   const manifest = {
     name: NATIVE_HOST_NAME,
-    description: "Local Markdown and agent bridge for Project PDF Reader",
+    description: "Local Markdown and agent bridge for PDF AI Reader",
     path: paths.launcher,
     type: "stdio",
     allowed_origins: [NATIVE_HOST_ORIGIN],
@@ -51,7 +51,7 @@ function install() {
   for (const target of paths.manifests) {
     console.log(`${target.browser}: ${target.path}`);
   }
-  console.log("Reload Project PDF Reader in chrome://extensions or arc://extensions if it is already open.");
+  console.log("Reload PDF AI Reader in chrome://extensions or arc://extensions if it is already open.");
 }
 
 function uninstall() {

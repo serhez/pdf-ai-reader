@@ -15,6 +15,8 @@ import {
 
 test("extension manifest has the required permissions, narrow hosts, and stable ID", () => {
   const manifest = JSON.parse(fs.readFileSync("extension/manifest.json", "utf8"));
+  assert.equal(manifest.name, "PDF AI Reader");
+  assert.equal(manifest.action.default_title, "PDF AI Reader");
   for (const permission of ["contextMenus", "nativeMessaging", "scripting", "sidePanel", "storage"]) {
     assert.ok(manifest.permissions.includes(permission));
   }
