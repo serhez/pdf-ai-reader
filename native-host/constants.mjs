@@ -1,4 +1,4 @@
-export const EXTENSION_ID = "ghljkecfobmdbdhgijffhaehplamigle";
+export const EXTENSION_ID = "ocgphhjnbmjbfkhfikdmbfknpmddcpgf";
 export const NATIVE_HOST_NAME = "com.local.project_pdf_reader";
 export const NATIVE_HOST_ORIGIN = `chrome-extension://${EXTENSION_ID}/`;
 

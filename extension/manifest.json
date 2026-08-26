@@ -5,7 +5,7 @@
   "version": "0.3.0",
   "description": "Highlight selected local-document text in Markdown or explain it with project context.",
   "minimum_chrome_version": "116",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwudFvF1+elhNELksZ61OX8310IH/gBDMlm0CSuYdmZR3SeqsTmPvEHdeddwvyESSyKlqaQC+z5dmdwKEwYMx0+z32Uf/VWxK4w1uYjEucPzxLOwL8X+QHIp6geGXympBltc5ui4mB2S8SzPVV7h2iKvlryjfzSNi/OmdqZOVt86S2Jfi+VLY1vI5yYJW+8SX9hMgWKfKA+qLRzRGe5SiVKvsEAyoVvhshbPF5V/AELKAcd+UW4RsJZL1+vBlnq4f4TXWv4Opw5C1+ZFRmFb2VyKQyCtGxqda9VsdrozurxnX4F1AxBkjWWCe88ngr/GSZ2X9tGxJJ+xHu0qMEzZ++wIDAQAB",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6IPcLN7FlxOiJAff8yi6ojHU8Tb28UaF7EWMX8dvVfTNavfVMApy6Tzeg8pojMuA13YeOVT66WVCk1sNfmcyCgS7TOlTihMda+3khYXpzWHxxieiqQPCR6yAgMXZYuraiMslIw2fXOPCmt0gLYa4UOkEUMoQY4mMwWqALerXVMXjd5jG/YEh6i4aZazKPNPlIKxevPNLYpu5UWVm/KuCEjYrAbADG85KpEm2KfAYNv8+AZphe1NBGyPHwsv4PmnPurHghHKMZAD36PULIs/BZlQDp66fGxXtqRA8Bu25F17dDBgie4CtByGRcriKYFeDf+Hn8hcknT2UeV5IaOkotwIDAQAB",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",

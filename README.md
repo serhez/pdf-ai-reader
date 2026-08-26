@@ -47,7 +47,7 @@ Browser-support PRs must not broaden the extension beyond `file://` and the exac
 
 5. Reload the extension from the browser's extensions page.
 
-The companion installer copies its runtime into Application Support and registers both Google Chrome and Arc. You can move or delete the source checkout afterward. The unpacked extension currently has the stable ID `ghljkecfobmdbdhgijffhaehplamigle`; this ID must be reconciled with the Chrome Web Store draft before publication.
+The companion installer copies its runtime into Application Support and registers both Google Chrome and Arc. You can move or delete the source checkout afterward. The unpacked extension and Chrome Web Store item share the stable ID `ocgphhjnbmjbfkhfikdmbfknpmddcpgf`.
 
 Release users can instead download the matching macOS companion archive from the repository's [releases page](https://github.com/serhez/pdf-ai-reader/releases/latest), extract it, and run the same `npm run install-host` command inside that archive.
 

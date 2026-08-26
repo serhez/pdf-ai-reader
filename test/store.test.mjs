@@ -5,7 +5,7 @@ import { validateStore } from "../scripts/validate-store.mjs";
 
 test("Chrome Web Store package metadata and icons validate", () => {
   const result = validateStore();
-  assert.equal(result.extensionId, "ghljkecfobmdbdhgijffhaehplamigle");
+  assert.equal(result.extensionId, "ocgphhjnbmjbfkhfikdmbfknpmddcpgf");
   assert.equal(result.manifest.name, "PDF AI Reader");
 });
 
